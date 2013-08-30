@@ -1,6 +1,3 @@
-### 
-
-
 ### Background 
 
 #### Part 1
