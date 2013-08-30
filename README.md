@@ -1,4 +1,12 @@
-### Background 
+## What's GlyphPatch?
+
+GlyphPatch is a MobileSubstrate tweak which patches a WebCore [rendering bug](http://translate.google.ru/translate?sl=auto&tl=en&js=n&prev=_t&hl=ru&ie=UTF-8&u=http%3A%2F%2Fhabrahabr.ru%2Fpost%2F191654%2F) on iOS which makes every app to crash when it encounters a particular sequence of characters.
+
+You can find a debian package file under the [releases](https://github.com/FilippoBiga/GlyphPatch/releases) tab.
+
+
+
+## Background 
 
 #### Part 1
 
@@ -12,7 +20,6 @@ calls `Font::getGlyphsAndAdvancesForSimpleText()` to work and advance with the G
 On the other end, the original return value of the function would have required `Font::drawText()` to call `Font::drawComplexText()`, which needs to call `Font::getGlyphsAndAdvancesForComplexText()`.
 
 This last function makes use of a `ComplexTextController` object: the bug resides in the `ComplexTextController::adjustGlyphsAndAdvances()` function, which is called in the initialization of ComplexTextController. (`ComplexTextController::ComplexTextController(const Font*, const TextRun&, bool, HashSet<const SimpleFontData*>*, bool)`)
-
 
 
 #### Part 2
