@@ -25,9 +25,9 @@ static CodePath patched_ZN7WebCore4Font22characterRangeCodePathEPKtj(const UChar
         if ((c >= 0x300 && c <= 0x36F) ||   // Combining diacritics
             (c >= 0x0600 && c <= 0x109F))   // Arabic (and other) characters
         {
-            for (unsigned j = 0; (j + (sizeof(sequence) / sizeof(UChar))) < len; j++)
+            for (unsigned j = 0; (len - j) >= (sizeof(sequence)/sizeof(UChar)); j++)
             {
-                if (memcmp(characters + j, sequence, sizeof(sequence)) == 0)
+                if (memcmp(&characters[j], sequence, sizeof(sequence)) == 0)
                 {
                     return Auto;
                 }
