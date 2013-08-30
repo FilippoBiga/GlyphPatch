@@ -26,40 +26,29 @@ static CodePath (*$ZN7WebCore4Font22characterRangeCodePathEPKtj)(const UChar*, u
 
 static CodePath (*orig_ZN7WebCore4Font22characterRangeCodePathEPKtj)(const UChar*, unsigned len);
 
+// malicious character sequence
+static const UChar sequence[] = {
+    
+    0x633, 0x645, 0x64e, 0x640, 0x64e, 0x651, 0x648, 0x64f,
+    0x648, 0x64f, 0x62d, 0x62e, 0x20,  0x337, 0x334, 0x310,
+    0x62e, 0x20,  0x337, 0x334, 0x310, 0x62e, 0x20, 0x337,
+    0x334, 0x310, 0x62e, 0x20,  0x627, 0x645, 0x627, 0x631,
+    0x62a, 0x64a, 0x62e, 0x20,  0x337, 0x334, 0x310, 0x62e
+};
+
 static CodePath patched_ZN7WebCore4Font22characterRangeCodePathEPKtj(const UChar *characters, unsigned len)
 {
     for (unsigned i = 0; i < len; i++)
     {
-        const UChar c = characters[i];
-        
-        /*
-         
-         As explained in the characterRangeCodePath(...) implementation in Font.cpp,
-         range from U+0600 through U+109F includes Arabic characters, among the others.
-         
-         If one of our characters is in that range, we override the original function
-         to return Auto instead of Complex.
-         
-         This makes Font::drawText(...) to call Font::drawSimpleText(...) instead of Font::drawComplexText(...):
-         this function (implemented in WebKit/Source/WebCore/platform/graphics/FontFastPath.cpp),
-         calls Font::getGlyphsAndAdvancesForSimpleText(...) to work and advance with the GlyphBuffer.
-         
-         On the other end, the original return value of the function would have required
-         Font::drawText(...) to call Font::drawComplexText(...), which needs to call
-         Font::getGlyphsAndAdvancesForComplexText(...).
-         
-         This last function makes use of a ComplexTextController object: the bug resides in the ComplexTextController::adjustGlyphsAndAdvances()
-         function, which is called in the initialization of ComplexTextController.
-         (ComplexTextController::ComplexTextController(const Font*, const TextRun&, bool, HashSet<const SimpleFontData*>*, bool))
-         
-         In this way we're actually able to isolate the case of Arabic characters,
-         which seems to render fine even with the new rendering behavior.
-         
-         */
+        const UChar c  = characters[i];
         
         if (c >= 0x0600 && c <= 0x109F) // U+0600 -> U+109F
         {
-            return Auto;
+            if (sizeof(sequence) / sizeof(UChar) <= len &&
+                memcmp(characters, sequence, sizeof(sequence)) == 0)
+            {
+                return Auto;
+            }
         }
     }
     
@@ -70,9 +59,10 @@ static CodePath patched_ZN7WebCore4Font22characterRangeCodePathEPKtj(const UChar
 __attribute__((constructor)) static void __GlyphPatch()
 {
     struct nlist nl[2];
-    
     memset(nl, 0, sizeof(nl));
+    
     nl[0].n_un.n_name = (char *) "__ZN7WebCore4Font22characterRangeCodePathEPKtj";
+    
     if (nlist("/System/Library/PrivateFrameworks/WebCore.framework/WebCore", nl) >= 0 &&
         nl[0].n_type != N_UNDF)
     {
