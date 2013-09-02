@@ -31,3 +31,20 @@ That was caused by the fact that the new "rendering path" followed by WebCore wa
 The only way this could be avoided was to isolate the malicious character sequence and hijack the rendering path only in that case. This is exactly what I'm doing now.
 
 The following code can be read as follows: "render everything as normal, except if the sequence of characters is the malicious one".
+
+#### Part 3
+
+In `WebCore-1640.27/platform/graphics/mac/ComplexTextController.cpp` we find the implementation of void `ComplexTextController::adjustGlyphsAndAdvances()`, the function we can see in the crash logs related to the malicious sequence bug. The former approach, explained above, relied on avoiding to call `adjustGlyphsAndAdvances()`, hijacking the original rendering behaviour. 
+
+But if we dig deeper into `adjustGlyphsAndAdvances()`, we get a better understanding of the bug and we also find what's actually causing the memory violation.
+
+Since we're actually speaking of a memory violation, the first thing that came to my mind while looking for an alternative approach (I should have done that from the start) was to look for an "out of bounds" access to an array: in our function, there are 2 main loops through 2 different arrays. 
+
+The first one is `m_complexTextRuns`, but the bounds are obtained just by asking the number of elements to the `Vector`. The second loop iterates over the characters of the `ComplexTextRun& complexTextRun` object. The number of characters is given by `ComplexTextRun::glyphCount()`, which just returns the `unsigned m_glyphCount` variable. Where is this variable set?
+
+By grepping the WebCore source (available on opensource.apple.com) we find out that m_glyphCount is set in `ComplexTextControllerCoreText.mm` and it is set as the return value of `CTRunGetGlyphCount)(CTRunRef run)`.
+
+Since the m_glyphCount is unsigned, a negative return value would be treated as a huge number: in fact, using particular sequences of characters, `CTRunGetGlyphCount` returns `-1`, which is actually treated as `4294967295`. This makes the loop run over the limit of the array.
+
+Hope this makes sense; if anyone notices there is something wrong, just let me know! :)
+

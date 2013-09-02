@@ -1,8 +1,7 @@
 {
 	Filter = {
 		Bundles = (
-			"com.apple.WebCore",
-			"com.apple.WebKit",
+			"com.apple.CoreText",
 		);
 	};
 }

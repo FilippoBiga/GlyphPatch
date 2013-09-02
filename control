@@ -1,7 +1,7 @@
 Package: com.filippobiga.glyphpatch
 Name: GlyphPatch
 Depends: mobilesubstrate
-Version: 0.1
+Version: 0.2
 Architecture: iphoneos-arm
 Description: WebCore patch.
 Maintainer: FilippoBiga
