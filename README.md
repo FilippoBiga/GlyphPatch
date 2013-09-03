@@ -1,6 +1,6 @@
 ## What's GlyphPatch?
 
-GlyphPatch is a MobileSubstrate tweak which patches a WebCore [rendering bug](http://translate.google.ru/translate?sl=auto&tl=en&js=n&prev=_t&hl=ru&ie=UTF-8&u=http%3A%2F%2Fhabrahabr.ru%2Fpost%2F191654%2F) on iOS which makes every app to crash when it encounters a particular sequence of characters.
+GlyphPatch is a MobileSubstrate tweak which patches a CoreText [rendering bug](http://translate.google.ru/translate?sl=auto&tl=en&js=n&prev=_t&hl=ru&ie=UTF-8&u=http%3A%2F%2Fhabrahabr.ru%2Fpost%2F191654%2F) on iOS which makes every app to crash when it encounters a particular sequence of characters.
 
 You can find a debian package file under the [releases](https://github.com/FilippoBiga/GlyphPatch/releases) tab.
 
